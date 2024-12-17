@@ -1,0 +1,1180 @@
+---
+title: "Final Project"
+author: "Manye Dong"
+date: "2024-12-02"
+output: pdf_document
+---
+```{r echo=FALSE}
+#install.packages("pcalg")
+#install.packages("igraph")
+```
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+library(readr)
+library(tidyverse)
+library(dplyr)
+library(igraph)
+library(pcalg)
+library(caret)
+library(pROC)
+library(knitr)
+```
+
+# Data Preprocessing
+```{r warning=FALSE, message=FALSE}
+# no.62 not here
+CMU_a_0050642_rois_dosenbach160_1D <- read.table("data/CMU_a_0050642_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_a_0050646_rois_dosenbach160_1D <- read.table("data/CMU_a_0050646_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_a_0050647_rois_dosenbach160_1D <- read.table("data/CMU_a_0050647_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_a_0050649_rois_dosenbach160_1D <- read.table("data/CMU_a_0050649_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_a_0050653_rois_dosenbach160_1D <- read.table("data/CMU_a_0050653_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_a_0050654_rois_dosenbach160_1D <- read.table("data/CMU_a_0050654_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_a_0050656_rois_dosenbach160_1D <- read.table("data/CMU_a_0050656_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_a_0050659_rois_dosenbach160_1D <- read.table("data/CMU_a_0050659_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_a_0050660_rois_dosenbach160_1D <- read.table("data/CMU_a_0050660_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_a_0050663_rois_dosenbach160_1D <- read.table("data/CMU_a_0050663_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_a_0050664_rois_dosenbach160_1D <- read.table("data/CMU_a_0050664_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_a_0050665_rois_dosenbach160_1D <- read.table("data/CMU_a_0050665_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_a_0050666_rois_dosenbach160_1D <- read.table("data/CMU_a_0050666_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_a_0050668_rois_dosenbach160_1D <- read.table("data/CMU_a_0050668_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+
+CMU_b_0050643_rois_dosenbach160_1D <- read.table("data/CMU_b_0050643_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_b_0050644_rois_dosenbach160_1D <- read.table("data/CMU_b_0050644_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_b_0050645_rois_dosenbach160_1D <- read.table("data/CMU_b_0050645_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_b_0050648_rois_dosenbach160_1D <- read.table("data/CMU_b_0050648_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_b_0050650_rois_dosenbach160_1D <- read.table("data/CMU_b_0050650_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_b_0050651_rois_dosenbach160_1D <- read.table("data/CMU_b_0050651_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_b_0050652_rois_dosenbach160_1D <- read.table("data/CMU_b_0050652_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_b_0050655_rois_dosenbach160_1D <- read.table("data/CMU_b_0050655_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_b_0050657_rois_dosenbach160_1D <- read.table("data/CMU_b_0050657_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_b_0050658_rois_dosenbach160_1D <- read.table("data/CMU_b_0050658_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_b_0050661_rois_dosenbach160_1D <- read.table("data/CMU_b_0050661_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_b_0050667_rois_dosenbach160_1D <- read.table("data/CMU_b_0050667_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+CMU_b_0050669_rois_dosenbach160_1D <- read.table("data/CMU_b_0050669_rois_dosenbach160.1D.csv", 
+                                                 sep = '\t', header = FALSE)
+```
+
+Delete the last column for all files:
+```{r warning=FALSE, message=FALSE}
+CMU_a_0050642_rois_dosenbach160_1D = CMU_a_0050642_rois_dosenbach160_1D[, -ncol(CMU_a_0050642_rois_dosenbach160_1D)]
+CMU_a_0050646_rois_dosenbach160_1D = CMU_a_0050646_rois_dosenbach160_1D[, -ncol(CMU_a_0050646_rois_dosenbach160_1D)]
+CMU_a_0050647_rois_dosenbach160_1D = CMU_a_0050647_rois_dosenbach160_1D[, -ncol(CMU_a_0050647_rois_dosenbach160_1D)]
+CMU_a_0050649_rois_dosenbach160_1D = CMU_a_0050649_rois_dosenbach160_1D[, -ncol(CMU_a_0050649_rois_dosenbach160_1D)]
+CMU_a_0050653_rois_dosenbach160_1D = CMU_a_0050653_rois_dosenbach160_1D[, -ncol(CMU_a_0050653_rois_dosenbach160_1D)]
+CMU_a_0050654_rois_dosenbach160_1D = CMU_a_0050654_rois_dosenbach160_1D[, -ncol(CMU_a_0050654_rois_dosenbach160_1D)]
+CMU_a_0050656_rois_dosenbach160_1D = CMU_a_0050656_rois_dosenbach160_1D[, -ncol(CMU_a_0050656_rois_dosenbach160_1D)]
+CMU_a_0050659_rois_dosenbach160_1D = CMU_a_0050659_rois_dosenbach160_1D[, -ncol(CMU_a_0050659_rois_dosenbach160_1D)]
+CMU_a_0050660_rois_dosenbach160_1D = CMU_a_0050660_rois_dosenbach160_1D[, -ncol(CMU_a_0050660_rois_dosenbach160_1D)]
+CMU_a_0050663_rois_dosenbach160_1D = CMU_a_0050663_rois_dosenbach160_1D[, -ncol(CMU_a_0050663_rois_dosenbach160_1D)]
+CMU_a_0050664_rois_dosenbach160_1D = CMU_a_0050664_rois_dosenbach160_1D[, -ncol(CMU_a_0050664_rois_dosenbach160_1D)]
+CMU_a_0050665_rois_dosenbach160_1D = CMU_a_0050665_rois_dosenbach160_1D[, -ncol(CMU_a_0050665_rois_dosenbach160_1D)]
+CMU_a_0050666_rois_dosenbach160_1D = CMU_a_0050666_rois_dosenbach160_1D[, -ncol(CMU_a_0050666_rois_dosenbach160_1D)]
+CMU_a_0050668_rois_dosenbach160_1D = CMU_a_0050668_rois_dosenbach160_1D[, -ncol(CMU_a_0050668_rois_dosenbach160_1D)]
+
+CMU_b_0050643_rois_dosenbach160_1D = CMU_b_0050643_rois_dosenbach160_1D[, -ncol(CMU_b_0050643_rois_dosenbach160_1D)]
+CMU_b_0050644_rois_dosenbach160_1D = CMU_b_0050644_rois_dosenbach160_1D[, -ncol(CMU_b_0050644_rois_dosenbach160_1D)]
+CMU_b_0050645_rois_dosenbach160_1D = CMU_b_0050645_rois_dosenbach160_1D[, -ncol(CMU_b_0050645_rois_dosenbach160_1D)]
+CMU_b_0050648_rois_dosenbach160_1D = CMU_b_0050648_rois_dosenbach160_1D[, -ncol(CMU_b_0050648_rois_dosenbach160_1D)]
+CMU_b_0050650_rois_dosenbach160_1D = CMU_b_0050650_rois_dosenbach160_1D[, -ncol(CMU_b_0050650_rois_dosenbach160_1D)]
+CMU_b_0050651_rois_dosenbach160_1D = CMU_b_0050651_rois_dosenbach160_1D[, -ncol(CMU_b_0050651_rois_dosenbach160_1D)]
+CMU_b_0050652_rois_dosenbach160_1D = CMU_b_0050652_rois_dosenbach160_1D[, -ncol(CMU_b_0050652_rois_dosenbach160_1D)]
+CMU_b_0050655_rois_dosenbach160_1D = CMU_b_0050655_rois_dosenbach160_1D[, -ncol(CMU_b_0050655_rois_dosenbach160_1D)]
+CMU_b_0050657_rois_dosenbach160_1D = CMU_b_0050657_rois_dosenbach160_1D[, -ncol(CMU_b_0050657_rois_dosenbach160_1D)]
+CMU_b_0050658_rois_dosenbach160_1D = CMU_b_0050658_rois_dosenbach160_1D[, -ncol(CMU_b_0050658_rois_dosenbach160_1D)]
+CMU_b_0050661_rois_dosenbach160_1D = CMU_b_0050661_rois_dosenbach160_1D[, -ncol(CMU_b_0050661_rois_dosenbach160_1D)]
+CMU_b_0050667_rois_dosenbach160_1D = CMU_b_0050667_rois_dosenbach160_1D[, -ncol(CMU_b_0050667_rois_dosenbach160_1D)]
+CMU_b_0050669_rois_dosenbach160_1D = CMU_b_0050669_rois_dosenbach160_1D[, -ncol(CMU_b_0050669_rois_dosenbach160_1D)]
+```
+
+Read the meta data:
+```{r warning=FALSE, message=FALSE}
+phenotypic_CMU <- read_csv("phenotypic_CMU.csv") |> janitor::clean_names()
+phenotypic_CMU
+```
+
+# Quick demographics EDA
+```{r}
+summary_stats <- phenotypic_CMU %>%
+  group_by(dx_group) %>%
+  summarise(
+    # Age
+    median_age = median(age_at_scan, na.rm = TRUE),
+    q1_age = quantile(age_at_scan, 0.25, na.rm = TRUE),
+    q3_age = quantile(age_at_scan, 0.75, na.rm = TRUE),
+    
+    # Counts and n
+    n = n(),
+    sex_1_count = sum(sex == 1, na.rm = TRUE),
+    sex_2_count = sum(sex == 2, na.rm = TRUE),
+    hand_R_count = sum(handedness_category == "R", na.rm = TRUE),
+    hand_L_count = sum(handedness_category == "L", na.rm = TRUE),
+    hand_Ambi_count = sum(handedness_category == "Ambi", na.rm = TRUE),
+    
+    # FIQ
+    median_fiq = median(fiq, na.rm = TRUE),
+    q1_fiq = quantile(fiq, 0.25, na.rm = TRUE),
+    q3_fiq = quantile(fiq, 0.75, na.rm = TRUE),
+    
+    # VIQ
+    median_viq = median(viq, na.rm = TRUE),
+    q1_viq = quantile(viq, 0.25, na.rm = TRUE),
+    q3_viq = quantile(viq, 0.75, na.rm = TRUE),
+    
+    # PIQ
+    median_piq = median(piq, na.rm = TRUE),
+    q1_piq = quantile(piq, 0.25, na.rm = TRUE),
+    q3_piq = quantile(piq, 0.75, na.rm = TRUE),
+    
+    # ADI-R Social Total A
+    median_adi_r_social_total_a = median(adi_r_social_total_a, na.rm = TRUE),
+    q1_adi_r_social_total_a = quantile(adi_r_social_total_a, 0.25, na.rm = TRUE),
+    q3_adi_r_social_total_a = quantile(adi_r_social_total_a, 0.75, na.rm = TRUE),
+    
+    # ADI-R Verbal Total BV
+    median_adi_r_verbal_total_bv = median(adi_r_verbal_total_bv, na.rm = TRUE),
+    q1_adi_r_verbal_total_bv = quantile(adi_r_verbal_total_bv, 0.25, na.rm = TRUE),
+    q3_adi_r_verbal_total_bv = quantile(adi_r_verbal_total_bv, 0.75, na.rm = TRUE),
+    
+    # ADI-R RRB Total C
+    median_adi_rrb_total_c = median(adi_rrb_total_c, na.rm = TRUE),
+    q1_adi_rrb_total_c = quantile(adi_rrb_total_c, 0.25, na.rm = TRUE),
+    q3_adi_rrb_total_c = quantile(adi_rrb_total_c, 0.75, na.rm = TRUE),
+    
+    # ADI-R Onset Total D
+    median_adi_r_onset_total_d = median(adi_r_onset_total_d, na.rm = TRUE),
+    q1_adi_r_onset_total_d = quantile(adi_r_onset_total_d, 0.25, na.rm = TRUE),
+    q3_adi_r_onset_total_d = quantile(adi_r_onset_total_d, 0.75, na.rm = TRUE),
+    
+    # ADI-R Research Reliable
+    median_adi_r_rsrch_reliable = median(adi_r_rsrch_reliable, na.rm = TRUE),
+    q1_adi_r_rsrch_reliable = quantile(adi_r_rsrch_reliable, 0.25, na.rm = TRUE),
+    q3_adi_r_rsrch_reliable = quantile(adi_r_rsrch_reliable, 0.75, na.rm = TRUE),
+    
+    # ADOS Module
+    median_ados_module = median(ados_module, na.rm = TRUE),
+    q1_ados_module = quantile(ados_module, 0.25, na.rm = TRUE),
+    q3_ados_module = quantile(ados_module, 0.75, na.rm = TRUE),
+    
+    # ADOS Total
+    median_ados_total = median(ados_total, na.rm = TRUE),
+    q1_ados_total = quantile(ados_total, 0.25, na.rm = TRUE),
+    q3_ados_total = quantile(ados_total, 0.75, na.rm = TRUE),
+    
+    # ADOS Communication
+    median_ados_comm = median(ados_comm, na.rm = TRUE),
+    q1_ados_comm = quantile(ados_comm, 0.25, na.rm = TRUE),
+    q3_ados_comm = quantile(ados_comm, 0.75, na.rm = TRUE),
+    
+    # ADOS Social
+    median_ados_social = median(ados_social, na.rm = TRUE),
+    q1_ados_social = quantile(ados_social, 0.25, na.rm = TRUE),
+    q3_ados_social = quantile(ados_social, 0.75, na.rm = TRUE),
+    
+    # ADOS Stereotyped Behavior
+    median_ados_stereo_behav = median(ados_stereo_behav, na.rm = TRUE),
+    q1_ados_stereo_behav = quantile(ados_stereo_behav, 0.25, na.rm = TRUE),
+    q3_ados_stereo_behav = quantile(ados_stereo_behav, 0.75, na.rm = TRUE),
+    
+    # ADOS Research Reliable
+    median_ados_rsrch_reliable = median(ados_rsrch_reliable, na.rm = TRUE),
+    q1_ados_rsrch_reliable = quantile(ados_rsrch_reliable, 0.25, na.rm = TRUE),
+    q3_ados_rsrch_reliable = quantile(ados_rsrch_reliable, 0.75, na.rm = TRUE)
+  )
+
+kable(summary_stats, format = "html", caption = "Summary Statistics by dx_group")
+```
+
+
+## Get DAGs for all 27 subjects using PC algorithm
+```{r warning=FALSE, message=FALSE}
+datasets <- list(
+  "CMU_a_0050642_rois_dosenbach160_1D",
+  "CMU_a_0050646_rois_dosenbach160_1D",
+  "CMU_a_0050647_rois_dosenbach160_1D",
+  "CMU_a_0050649_rois_dosenbach160_1D",
+  "CMU_a_0050653_rois_dosenbach160_1D",
+  "CMU_a_0050654_rois_dosenbach160_1D",
+  "CMU_a_0050656_rois_dosenbach160_1D"
+)
+
+# Initialize an empty data frame to store graph metrics for all subjects
+all_graph_metrics_a <- data.frame()
+
+# Loop through each dataset
+for (dataset_name in datasets) {
+  # Load dataset into a matrix
+  matrix_data <- as.matrix(get(dataset_name))
+  
+  # Compute suffStat for the PC algorithm
+  suffStat <- list(C = cor(matrix_data), n = nrow(matrix_data))
+  
+  # Run the PC algorithm
+  pc_result <- pc(suffStat, gaussCItest, alpha = 0.05, 
+                  labels = colnames(matrix_data), verbose = FALSE)
+  
+  # Extract adjacency matrix and create an igraph object
+  adj_matrix <- as(pc_result, "matrix")
+  graph <- graph_from_adjacency_matrix(adj_matrix, mode = "directed", diag = FALSE)
+  
+  # Compute graph metrics
+  graph_metrics_a <- data.frame(
+    Dataset = dataset_name,
+    Number_of_Edges = ecount(graph),
+    Median_Degree_Centrality = median(degree(graph), na.rm = TRUE),
+    Median_Clustering_Coefficients = median(transitivity(graph, type = "local"), na.rm = TRUE),
+    Average_Path_Length = mean_distance(graph),
+    Graph_Density = graph.density(graph),
+    Median_Betweenness_Centrality = median(betweenness(graph), na.rm = TRUE),
+    Mean_Distance = mean_distance(graph, directed = FALSE)
+  )
+  
+  # Append to the results
+  all_graph_metrics_a <- rbind(all_graph_metrics_a, graph_metrics_a)
+}
+
+all_graph_metrics_a
+```
+
+
+```{r warning=FALSE, message=FALSE}
+datasets <- list(
+  "CMU_a_0050659_rois_dosenbach160_1D",
+  "CMU_a_0050660_rois_dosenbach160_1D",
+  "CMU_a_0050663_rois_dosenbach160_1D",
+  "CMU_a_0050664_rois_dosenbach160_1D",
+  "CMU_a_0050665_rois_dosenbach160_1D",
+  "CMU_a_0050666_rois_dosenbach160_1D",
+  "CMU_a_0050668_rois_dosenbach160_1D"
+)
+
+# Initialize an empty data frame to store graph metrics for all subjects
+all_graph_metrics_a2 <- data.frame()
+
+# Loop through each dataset
+for (dataset_name in datasets) {
+  # Load dataset into a matrix
+  matrix_data <- as.matrix(get(dataset_name))
+  
+  # Compute suffStat for the PC algorithm
+  suffStat <- list(C = cor(matrix_data), n = nrow(matrix_data))
+  
+  # Run the PC algorithm
+  pc_result <- pc(suffStat, gaussCItest, alpha = 0.05, 
+                  labels = colnames(matrix_data), verbose = FALSE)
+  
+  # Extract adjacency matrix and create an igraph object
+  adj_matrix <- as(pc_result, "matrix")
+  graph <- graph_from_adjacency_matrix(adj_matrix, mode = "directed", diag = FALSE)
+  
+  # Compute graph metrics
+  graph_metrics_a2 <- data.frame(
+    Dataset = dataset_name,
+    Number_of_Edges = ecount(graph),
+    Median_Degree_Centrality = median(degree(graph), na.rm = TRUE),
+    Median_Clustering_Coefficients = median(transitivity(graph, type = "local"), na.rm = TRUE),
+    Average_Path_Length = mean_distance(graph),
+    Graph_Density = graph.density(graph),
+    Median_Betweenness_Centrality = median(betweenness(graph), na.rm = TRUE),
+    Mean_Distance = mean_distance(graph, directed = FALSE)
+  )
+  
+  # Append to the results
+  all_graph_metrics_a2 <- rbind(all_graph_metrics_a2, graph_metrics_a2)
+}
+
+all_graph_metrics_a2
+```
+
+
+```{r warning=FALSE, message=FALSE}
+datasets <- list(
+  "CMU_b_0050643_rois_dosenbach160_1D",
+  "CMU_b_0050644_rois_dosenbach160_1D",
+  "CMU_b_0050645_rois_dosenbach160_1D",
+  "CMU_b_0050648_rois_dosenbach160_1D",
+  "CMU_b_0050650_rois_dosenbach160_1D",
+  "CMU_b_0050651_rois_dosenbach160_1D",
+  "CMU_b_0050652_rois_dosenbach160_1D"
+)
+
+# Initialize an empty data frame to store graph metrics for all subjects
+all_graph_metrics_b <- data.frame()
+
+# Loop through each dataset
+for (dataset_name in datasets) {
+  # Load dataset into a matrix
+  matrix_data <- as.matrix(get(dataset_name))
+  
+  # Compute suffStat for the PC algorithm
+  suffStat <- list(C = cor(matrix_data), n = nrow(matrix_data))
+  
+  # Run the PC algorithm
+  pc_result <- pc(suffStat, gaussCItest, alpha = 0.05, 
+                  labels = colnames(matrix_data), verbose = FALSE)
+  
+  # Extract adjacency matrix and create an igraph object
+  adj_matrix <- as(pc_result, "matrix")
+  graph <- graph_from_adjacency_matrix(adj_matrix, mode = "directed", diag = FALSE)
+  
+  # Compute graph metrics
+  graph_metrics_b <- data.frame(
+    Dataset = dataset_name,
+    Number_of_Edges = ecount(graph),
+    Median_Degree_Centrality = median(degree(graph), na.rm = TRUE),
+    Median_Clustering_Coefficients = median(transitivity(graph, type = "local"), na.rm = TRUE),
+    Average_Path_Length = mean_distance(graph),
+    Graph_Density = graph.density(graph),
+    Median_Betweenness_Centrality = median(betweenness(graph), na.rm = TRUE),
+    Mean_Distance = mean_distance(graph, directed = FALSE)
+  )
+  
+  # Append to the results
+  all_graph_metrics_b <- rbind(all_graph_metrics_b, graph_metrics_b)
+}
+
+# View the combined metrics
+all_graph_metrics_b
+```
+
+```{r warning=FALSE, message=FALSE}
+datasets <- list(
+  "CMU_b_0050655_rois_dosenbach160_1D",
+  "CMU_b_0050657_rois_dosenbach160_1D",
+  "CMU_b_0050658_rois_dosenbach160_1D",
+  "CMU_b_0050661_rois_dosenbach160_1D",
+  "CMU_b_0050667_rois_dosenbach160_1D",
+  "CMU_b_0050669_rois_dosenbach160_1D"
+)
+
+# Initialize an empty data frame to store graph metrics for all subjects
+all_graph_metrics_b2 <- data.frame()
+
+# Loop through each dataset
+for (dataset_name in datasets) {
+  # Load dataset into a matrix
+  matrix_data <- as.matrix(get(dataset_name))
+  
+  # Compute suffStat for the PC algorithm
+  suffStat <- list(C = cor(matrix_data), n = nrow(matrix_data))
+  
+  # Run the PC algorithm
+  pc_result <- pc(suffStat, gaussCItest, alpha = 0.05, 
+                  labels = colnames(matrix_data), verbose = FALSE)
+  
+  # Extract adjacency matrix and create an igraph object
+  adj_matrix <- as(pc_result, "matrix")
+  graph <- graph_from_adjacency_matrix(adj_matrix, mode = "directed", diag = FALSE)
+  
+  # Compute graph metrics
+  graph_metrics_b2 <- data.frame(
+    Dataset = dataset_name,
+    Number_of_Edges = ecount(graph),
+    Median_Degree_Centrality = median(degree(graph), na.rm = TRUE),
+    Median_Clustering_Coefficients = median(transitivity(graph, type = "local"), na.rm = TRUE),
+    Average_Path_Length = mean_distance(graph),
+    Graph_Density = graph.density(graph),
+    Median_Betweenness_Centrality = median(betweenness(graph), na.rm = TRUE),
+    Mean_Distance = mean_distance(graph, directed = FALSE)
+  )
+  
+  # Append to the results
+  all_graph_metrics_b2 <- rbind(all_graph_metrics_b2, graph_metrics_b2)
+}
+
+# View the combined metrics
+all_graph_metrics_b2
+```
+
+```{r}
+all_graph_metrics_pc <- rbind(all_graph_metrics_a, all_graph_metrics_a2,
+                           all_graph_metrics_b, all_graph_metrics_b2)
+all_graph_metrics_pc
+```
+
+Save to csv to save time for future runs:
+```{r}
+write.csv(all_graph_metrics_pc, file = "all_graph_metrics_pc.csv", row.names = FALSE)
+```
+
+
+## Get DAGs for all 27 subjects using GES algorithm
+```{r warning=FALSE, message=FALSE}
+datasets <- list(
+  "CMU_a_0050642_rois_dosenbach160_1D",
+  "CMU_a_0050646_rois_dosenbach160_1D",
+  "CMU_a_0050647_rois_dosenbach160_1D",
+  "CMU_a_0050649_rois_dosenbach160_1D",
+  "CMU_a_0050653_rois_dosenbach160_1D",
+  "CMU_a_0050654_rois_dosenbach160_1D",
+  "CMU_a_0050656_rois_dosenbach160_1D"
+)
+
+# Initialize an empty data frame to store graph metrics for all subjects
+all_graph_metrics_ges_a <- data.frame()
+
+# Loop through each dataset
+for (dataset_name in datasets) {
+  matrix_data <- as.matrix(get(dataset_name))
+  score <- new("GaussL0penObsScore", matrix_data)
+  ges.fit <- ges(score, verbose=FALSE) ## estimate at CPDAG with GES
+  adj_matrix_ges <- as(ges.fit$essgraph, "matrix")
+
+  # Step 2: Create an igraph object from the adjacency matrix
+  graph_ges <- graph_from_adjacency_matrix(adj_matrix_ges, mode = "directed", diag = FALSE)
+
+  # Combine all metrics into a data frame
+  graph_metrics_ges_a <- data.frame(
+    Number_of_Edges = ecount(graph_ges),
+    Median_Degree_Centrality = median(igraph::degree(graph_ges), na.rm = TRUE),
+    Median_Clustering_Coefficients = median(transitivity(graph_ges, type = "local"), na.rm = TRUE),
+    Average_Path_Length = mean_distance(graph_ges),
+    Graph_Density = graph.density(graph_ges),
+    Median_Betweenness_Centrality = median(betweenness(graph_ges), na.rm = TRUE),
+    Mean_Distance = mean_distance(graph_ges, directed = FALSE)
+)
+  
+  # Append to the results
+  all_graph_metrics_ges_a <- rbind(all_graph_metrics_ges_a, graph_metrics_ges_a)
+}
+
+all_graph_metrics_ges_a
+```
+
+```{r warning=FALSE, message=FALSE}
+datasets <- list(
+  "CMU_a_0050659_rois_dosenbach160_1D",
+  "CMU_a_0050660_rois_dosenbach160_1D",
+  "CMU_a_0050663_rois_dosenbach160_1D",
+  "CMU_a_0050664_rois_dosenbach160_1D",
+  "CMU_a_0050665_rois_dosenbach160_1D",
+  "CMU_a_0050666_rois_dosenbach160_1D",
+  "CMU_a_0050668_rois_dosenbach160_1D"
+)
+
+# Initialize an empty data frame to store graph metrics for all subjects
+all_graph_metrics_ges_a2 <- data.frame()
+
+# Loop through each dataset
+for (dataset_name in datasets) {
+  matrix_data <- as.matrix(get(dataset_name))
+  score <- new("GaussL0penObsScore", matrix_data)
+  ges.fit <- ges(score, verbose=FALSE) ## estimate at CPDAG with GES
+  adj_matrix_ges <- as(ges.fit$essgraph, "matrix")
+
+  # Step 2: Create an igraph object from the adjacency matrix
+  graph_ges <- graph_from_adjacency_matrix(adj_matrix_ges, mode = "directed", diag = FALSE)
+
+  # Combine all metrics into a data frame
+  graph_metrics_ges_a2 <- data.frame(
+    Number_of_Edges = ecount(graph_ges),
+    Median_Degree_Centrality = median(igraph::degree(graph_ges), na.rm = TRUE),
+    Median_Clustering_Coefficients = median(transitivity(graph_ges, type = "local"), na.rm = TRUE),
+    Average_Path_Length = mean_distance(graph_ges),
+    Graph_Density = graph.density(graph_ges),
+    Median_Betweenness_Centrality = median(betweenness(graph_ges), na.rm = TRUE),
+    Mean_Distance = mean_distance(graph_ges, directed = FALSE)
+)
+  
+  # Append to the results
+  all_graph_metrics_ges_a2 <- rbind(all_graph_metrics_ges_a2, graph_metrics_ges_a2)
+}
+
+all_graph_metrics_ges_a2
+```
+
+```{r warning=FALSE, message=FALSE}
+datasets <- list(
+  "CMU_b_0050643_rois_dosenbach160_1D",
+  "CMU_b_0050644_rois_dosenbach160_1D",
+  "CMU_b_0050645_rois_dosenbach160_1D",
+  "CMU_b_0050648_rois_dosenbach160_1D",
+  "CMU_b_0050650_rois_dosenbach160_1D",
+  "CMU_b_0050651_rois_dosenbach160_1D",
+  "CMU_b_0050652_rois_dosenbach160_1D"
+)
+
+# Initialize an empty data frame to store graph metrics for all subjects
+all_graph_metrics_ges_b <- data.frame()
+
+# Loop through each dataset
+for (dataset_name in datasets) {
+  matrix_data <- as.matrix(get(dataset_name))
+  score <- new("GaussL0penObsScore", matrix_data)
+  ges.fit <- ges(score, verbose=FALSE) ## estimate at CPDAG with GES
+  adj_matrix_ges <- as(ges.fit$essgraph, "matrix")
+
+  # Step 2: Create an igraph object from the adjacency matrix
+  graph_ges <- graph_from_adjacency_matrix(adj_matrix_ges, mode = "directed", diag = FALSE)
+
+  # Combine all metrics into a data frame
+  graph_metrics_ges_b <- data.frame(
+    Number_of_Edges = ecount(graph_ges),
+    Median_Degree_Centrality = median(igraph::degree(graph_ges), na.rm = TRUE),
+    Median_Clustering_Coefficients = median(transitivity(graph_ges, type = "local"), na.rm = TRUE),
+    Average_Path_Length = mean_distance(graph_ges),
+    Graph_Density = graph.density(graph_ges),
+    Median_Betweenness_Centrality = median(betweenness(graph_ges), na.rm = TRUE),
+    Mean_Distance = mean_distance(graph_ges, directed = FALSE)
+)
+  
+  # Append to the results
+  all_graph_metrics_ges_b <- rbind(all_graph_metrics_ges_b, graph_metrics_ges_b)
+}
+
+all_graph_metrics_ges_b
+```
+
+```{r warning=FALSE, message=FALSE}
+datasets <- list(
+  "CMU_b_0050655_rois_dosenbach160_1D",
+  "CMU_b_0050657_rois_dosenbach160_1D",
+  "CMU_b_0050658_rois_dosenbach160_1D",
+  "CMU_b_0050661_rois_dosenbach160_1D",
+  "CMU_b_0050667_rois_dosenbach160_1D",
+  "CMU_b_0050669_rois_dosenbach160_1D"
+)
+
+# Initialize an empty data frame to store graph metrics for all subjects
+all_graph_metrics_ges_b2 <- data.frame()
+
+# Loop through each dataset
+for (dataset_name in datasets) {
+  matrix_data <- as.matrix(get(dataset_name))
+  score <- new("GaussL0penObsScore", matrix_data)
+  ges.fit <- ges(score, verbose=FALSE) ## estimate at CPDAG with GES
+  adj_matrix_ges <- as(ges.fit$essgraph, "matrix")
+
+  # Step 2: Create an igraph object from the adjacency matrix
+  graph_ges <- graph_from_adjacency_matrix(adj_matrix_ges, mode = "directed", diag = FALSE)
+
+  # Combine all metrics into a data frame
+  graph_metrics_ges_b2 <- data.frame(
+    Number_of_Edges = ecount(graph_ges),
+    Median_Degree_Centrality = median(igraph::degree(graph_ges), na.rm = TRUE),
+    Median_Clustering_Coefficients = median(transitivity(graph_ges, type = "local"), na.rm = TRUE),
+    Average_Path_Length = mean_distance(graph_ges),
+    Graph_Density = graph.density(graph_ges),
+    Median_Betweenness_Centrality = median(betweenness(graph_ges), na.rm = TRUE),
+    Mean_Distance = mean_distance(graph_ges, directed = FALSE)
+)
+  
+  # Append to the results
+  all_graph_metrics_ges_b2 <- rbind(all_graph_metrics_ges_b2, graph_metrics_ges_b2)
+}
+
+all_graph_metrics_ges_b2
+```
+
+```{r}
+all_graph_metrics_ges <- rbind(all_graph_metrics_ges_a, all_graph_metrics_ges_a2,
+                           all_graph_metrics_ges_b, all_graph_metrics_ges_b2)
+all_graph_metrics_ges
+```
+
+Save to csv to save time for future runs:
+```{r}
+write.csv(all_graph_metrics_ges, file = "all_graph_metrics_ges.csv", row.names = FALSE)
+```
+
+
+## Logistic Regression on Both
+```{r}
+ground_truth <- phenotypic_CMU |> 
+  select(sub_id, dx_group) |>
+  mutate(dx_group = ifelse(dx_group == 2, 0, 1))
+ground_truth
+```
+
+PC: Load in graph metrics for all subject and label each as ASD or control
+```{r warning=FALSE, message=FALSE}
+# 1 for ASD, 0 for Control
+pc_all <- read_csv("all_graph_metrics_pc.csv")
+pc_all$sub_id <- as.numeric(sub(".*_00(\\d+)_.*", "\\1", ground_truth$sub_id))
+pc_all <- pc_all |> select(-Dataset)
+pc_all <- merge(pc_all, ground_truth, by= "sub_id", all.x = TRUE)
+pc_all$dx_group <- factor(pc_all$dx_group, levels = c(0, 1))
+pc_all
+```
+
+GES: Load in graph metrics for all subject and label each as ASD or control
+```{r warning=FALSE, message=FALSE}
+ges_all = read_csv("all_graph_metrics_ges.csv")
+
+# Add in the subject names
+dataset_names <- c(
+  "CMU_a_0050642_rois_dosenbach160_1D",
+  "CMU_a_0050646_rois_dosenbach160_1D",
+  "CMU_a_0050647_rois_dosenbach160_1D",
+  "CMU_a_0050649_rois_dosenbach160_1D",
+  "CMU_a_0050653_rois_dosenbach160_1D",
+  "CMU_a_0050654_rois_dosenbach160_1D",
+  "CMU_a_0050656_rois_dosenbach160_1D",
+  "CMU_a_0050659_rois_dosenbach160_1D",
+  "CMU_a_0050660_rois_dosenbach160_1D",
+  "CMU_a_0050663_rois_dosenbach160_1D",
+  "CMU_a_0050664_rois_dosenbach160_1D",
+  "CMU_a_0050665_rois_dosenbach160_1D",
+  "CMU_a_0050666_rois_dosenbach160_1D",
+  "CMU_a_0050668_rois_dosenbach160_1D",
+  "CMU_b_0050643_rois_dosenbach160_1D",
+  "CMU_b_0050644_rois_dosenbach160_1D",
+  "CMU_b_0050645_rois_dosenbach160_1D",
+  "CMU_b_0050648_rois_dosenbach160_1D",
+  "CMU_b_0050650_rois_dosenbach160_1D",
+  "CMU_b_0050651_rois_dosenbach160_1D",
+  "CMU_b_0050652_rois_dosenbach160_1D",
+  "CMU_b_0050655_rois_dosenbach160_1D",
+  "CMU_b_0050657_rois_dosenbach160_1D",
+  "CMU_b_0050658_rois_dosenbach160_1D",
+  "CMU_b_0050661_rois_dosenbach160_1D",
+  "CMU_b_0050667_rois_dosenbach160_1D",
+  "CMU_b_0050669_rois_dosenbach160_1D"
+)
+
+ges_all$Dataset <- dataset_names
+ges_all <- ges_all |>
+    select(Dataset, everything())
+
+ges_all$sub_id <- as.numeric(sub(".*_00(\\d+)_.*", "\\1", ground_truth$sub_id))
+ges_all <- ges_all |> select(-Dataset)
+ges_all <- merge(ges_all, ground_truth, by= "sub_id", all.x = TRUE)
+ges_all$dx_group <- factor(ges_all$dx_group, levels = c(0, 1))
+ges_all
+```
+
+Fit logistic regression on PC's metrics:
+```{r warning=FALSE, message=FALSE}
+set.seed(123)
+
+# Ensure dx_group has valid factor levels
+pc_all$dx_group <- factor(pc_all$dx_group, levels = c(0, 1), labels = c("Control", "ASD"))
+
+# Perform 5-fold cross-validation
+cv_model_pc <- train(dx_group ~ . - sub_id, 
+                  data = pc_all, 
+                  method = "glm", 
+                  family = binomial,
+                  trControl = trainControl(method = "cv", number = 5, 
+                                           summaryFunction = twoClassSummary, 
+                                           classProbs = TRUE))
+
+# Print cross-validation results
+print(cv_model_pc)
+
+# Get the predictions from the model
+predicted_probs_pc <- predict(cv_model_pc, type = "prob")[, 2]  # Get probabilities for class "ASD"
+predicted_classes_pc <- predict(cv_model_pc, type = "raw")  # Get the predicted classes
+
+# Convert predicted classes to factors and ensure levels are the same as actual classes
+predicted_classes_pc <- factor(predicted_classes_pc, levels = c("Control", "ASD"))
+pc_all$dx_group <- factor(pc_all$dx_group, levels = c("Control", "ASD"))
+
+# Evaluate model performance using confusionMatrix
+conf_matrix_pc <- confusionMatrix(predicted_classes_pc, pc_all$dx_group)
+print(conf_matrix_pc)
+
+# Calculate AUC
+roc_curve_pc <- roc(pc_all$dx_group, predicted_probs_pc)
+auc_value_pc <- auc(roc_curve_pc)
+print(paste("AUC:", auc_value_pc))
+
+# Extract Accuracy, Precision, Recall
+accuracy_pc <- conf_matrix_pc$overall["Accuracy"]
+precision_pc <- conf_matrix_pc$byClass["Precision"]
+recall_pc <- conf_matrix_pc$byClass["Recall"]
+
+# Print the metrics
+print(paste("Accuracy:", accuracy_pc))
+print(paste("Precision:", precision_pc))
+print(paste("Recall:", recall_pc))
+```
+
+Fit logistic regression on GES' metrics:
+```{r warning=FALSE, message=FALSE}
+set.seed(123)
+# Ensure dx_group has valid factor levels
+ges_all$dx_group <- factor(ges_all$dx_group, levels = c(0, 1), labels = c("Control", "ASD"))
+
+# Perform 5-fold cross-validation
+cv_model_ges <- train(dx_group ~ . - sub_id, 
+                  data = ges_all, 
+                  method = "glm", 
+                  family = binomial,
+                  trControl = trainControl(method = "cv", number = 5, 
+                                           summaryFunction = twoClassSummary, 
+                                           classProbs = TRUE))
+
+# Print cross-validation results
+print(cv_model_ges)
+
+# Get the predictions from the model
+predicted_probs_ges <- predict(cv_model_ges, type = "prob")[, 2]  # Get probabilities for class "ASD"
+predicted_classes_ges <- predict(cv_model_ges, type = "raw")  # Get the predicted classes
+
+# Convert predicted classes to factors and ensure levels are the same as actual classes
+predicted_classes_ges <- factor(predicted_classes_ges, levels = c("Control", "ASD"))
+ges_all$dx_group <- factor(ges_all$dx_group, levels = c("Control", "ASD"))
+
+# Evaluate model performance using confusionMatrix
+conf_matrix_ges <- confusionMatrix(predicted_classes_ges, ges_all$dx_group)
+print(conf_matrix_ges)
+
+# Calculate AUC
+roc_curve_ges <- roc(ges_all$dx_group, predicted_probs_ges)
+auc_value_ges <- auc(roc_curve_ges)
+print(paste("AUC:", auc_value_ges))
+
+# Extract Accuracy, Precision, Recall
+accuracy_ges <- conf_matrix_ges$overall["Accuracy"]
+precision_ges <- conf_matrix_ges$byClass["Precision"]
+recall_ges <- conf_matrix_ges$byClass["Recall"]
+
+# Print the metrics
+print(paste("Accuracy:", accuracy_ges))
+print(paste("Precision:", precision_ges))
+print(paste("Recall:", recall_ges))
+```
+
+Create a table for the performance comparison:
+```{r}
+# Combine the results for PC and GES models into a data frame
+comparison_metrics <- data.frame(
+  Metric = c("Accuracy", "Precision", "Recall", "AUC"),
+  PC = c(accuracy_pc, precision_pc, recall_pc, auc_value_pc),
+  GES = c(accuracy_ges, precision_ges, recall_ges, auc_value_ges),
+  row.names = NULL
+)
+
+# Create a nicely formatted table using kable
+kable(comparison_metrics, 
+      col.names = c("Metric", "PC", "GES"), 
+      caption = "Model Comparison: PC vs GES", 
+      format = "markdown")
+```
+
+
+# Hypothesis Testing between two groups
+Just use the above pc_all and ges_all graph metrics:
+```{r}
+pc_asd_from_above = pc_all |> filter(dx_group=="ASD")
+pc_cont_from_above = pc_all |> filter(dx_group=="Control")
+
+ges_asd_from_above = ges_all |> filter(dx_group=="ASD")
+ges_cont_from_above = ges_all |> filter(dx_group=="Control")
+```
+
+
+### Within each subject group (ASD vs Control), is there significant difference in graph metrics obtained from two different algorithms?
+
+Check normality dist. assumptions of that most important graph metric in both algorithms:
+```{r}
+# Combine the two datasets for ASD group
+asd_combined <- bind_cols(
+  pc_asd_from_above |> select(-dx_group), 
+  ges_asd_from_above |> select(-dx_group) 
+) |>
+  mutate(Group = "ASD")
+
+colnames(asd_combined)
+asd_combined
+```
+
+Conduct hypothesis tests:
+```{r}
+set.seed(123)
+
+# Define the column pairs to test
+metric_pairs_pc <- list(
+  "Number_of_Edges" = c("Number_of_Edges...2", "Number_of_Edges...10"),
+  "Median_Degree_Centrality" = c("Median_Degree_Centrality...3", "Median_Degree_Centrality...11"),
+  "Median_Clustering_Coefficients" = c("Median_Clustering_Coefficients...4", "Median_Clustering_Coefficients...12"),
+  "Average_Path_Length" = c("Average_Path_Length...5", "Average_Path_Length...13"),
+  "Graph_Density" = c("Graph_Density...6", "Graph_Density...14"),
+  "Median_Betweenness_Centrality" = c("Median_Betweenness_Centrality...7", "Median_Betweenness_Centrality...15"),
+  "Mean_Distance" = c("Mean_Distance...8", "Mean_Distance...16")
+)
+
+# Initialize a results list to store outputs
+results_pc <- list()
+
+# Loop over each metric pair
+for (metric_name in names(metric_pairs_pc)) {
+  col1 <- metric_pairs_pc[[metric_name]][1]
+  col2 <- metric_pairs_pc[[metric_name]][2]
+  
+  # Calculate the difference
+  diff_values <- asd_combined[[col1]] - asd_combined[[col2]]
+  
+  # Shapiro-Wilk test for normality
+  shapiro_test <- shapiro.test(diff_values)
+  print(paste("Shapiro-Wilk test for", metric_name))
+  print(shapiro_test)
+  
+  # Determine which test to use based on normality
+  if (shapiro_test$p.value >= 0.05) {
+    # Paired t-test if normality holds
+    t_test <- t.test(asd_combined[[col1]], asd_combined[[col2]], paired = TRUE)
+    results_pc[[metric_name]] <- list(
+      "test" = "Paired t-test",
+      "p.value" = t_test$p.value
+      #"t-statistic" = t_test$statistic
+    )
+    print(paste("Paired t-test result for", metric_name))
+    print(t_test)
+  } else {
+    # Wilcoxon signed-rank test if normality doesn't hold
+    wilcox_test <- wilcox.test(asd_combined[[col1]], asd_combined[[col2]], paired = TRUE)
+    results_pc[[metric_name]] <- list(
+      "test" = "Wilcoxon signed-rank test",
+      "p.value" = wilcox_test$p.value
+      #"V-statistic" = wilcox_test$statistic
+    )
+    print(paste("Wilcoxon signed-rank test result for", metric_name))
+    print(wilcox_test)
+  }
+}
+
+results_pc
+```
+
+```{r}
+# Initialize an empty data frame to store results
+results_df_pc <- data.frame(
+  Metric = character(),
+  Test = character(),
+  P_Value = numeric(),
+  stringsAsFactors = FALSE
+)
+
+# Loop over each metric in results_pc
+for (metric_name in names(results_pc)) {
+  # Append results to the data frame
+  results_df_pc <- rbind(results_df_pc, data.frame(
+    Metric = metric_name,
+    Test = results_pc[[metric_name]]$test,  # Corrected to reference results_pc
+    P_Value = results_pc[[metric_name]]$p.value  # Corrected to reference results_pc
+  ))
+}
+
+# Format the P_Value column and display results as a table
+results_df_pc$P_Value <- format(results_df_pc$P_Value, scientific = FALSE, digits = 4)
+kable(results_df_pc, 
+      caption = "ASD Patients Metrics Comparison: PC vs GES")
+```
+
+All metrics between the two algorithms (PC vs. GES) for ASD patients are statistically significant. This means that we want to be very careful when selecting graphical learning algorithms.
+
+Simply visualize the graph metrics with :
+```{r}
+par(mfrow = c(3, 3), mar = c(4, 4, 2, 1), oma = c(1, 1, 1, 1))
+
+shortened_labels <- c(
+  "Number_of_Edges" = "Number of Edges",
+  "Median_Degree_Centrality" = "Med. Degree Centrality",
+  "Median_Clustering_Coefficients" = "Med. Clustering Coeff.",
+  "Average_Path_Length" = "Avg. Path Length",
+  "Graph_Density" = "Graph Density",
+  "Median_Betweenness_Centrality" = "Med. Betweenness Centrality",
+  "Mean_Distance" = "Mean Distance"
+)
+
+# Loop through each metric and generate boxplots for ASD patients
+for (metric_name in names(metric_pairs_pc)) {
+  col1 <- metric_pairs_pc[[metric_name]][1] # PC algorithm values
+  col2 <- metric_pairs_pc[[metric_name]][2] # GES algorithm values
+  
+  # Create boxplot
+  boxplot(asd_combined[[col1]], asd_combined[[col2]],
+          names = c("PC", "GES"),
+          main = shortened_labels[metric_name],
+          col = c("lightblue", "pink"),
+          border = "black",
+          las = 1,
+          cex.main = 1.2,
+          cex.lab = 1.1,
+          cex.axis = 1)
+}
+
+# Reset layout
+par(mfrow = c(1, 1))
+```
+
+```{r}
+# Combine the two datasets for Control group
+cont_combined <- bind_cols(
+  pc_cont_from_above |> select(-dx_group), 
+  ges_cont_from_above |> select(-dx_group)
+) |>
+  mutate(Group = "Control")
+colnames(cont_combined)
+```
+
+Check normality assumption:
+```{r warning=FALSE, message=FALSE}
+set.seed(123)
+
+metric_pairs_cont <- list(
+  "Number_of_Edges" = c("Number_of_Edges...2", "Number_of_Edges...10"),
+  "Median_Degree_Centrality" = c("Median_Degree_Centrality...3", "Median_Degree_Centrality...11"),
+  "Median_Clustering_Coefficients" = c("Median_Clustering_Coefficients...4", "Median_Clustering_Coefficients...12"),
+  "Average_Path_Length" = c("Average_Path_Length...5", "Average_Path_Length...13"),
+  "Graph_Density" = c("Graph_Density...6", "Graph_Density...14"),
+  "Median_Betweenness_Centrality" = c("Median_Betweenness_Centrality...7", "Median_Betweenness_Centrality...15"),
+  "Mean_Distance" = c("Mean_Distance...8", "Mean_Distance...16")
+)
+
+# Initialize a results list to store outputs
+results_cont <- list()
+
+# Loop over each metric pair
+for (metric_name in names(metric_pairs_cont)) {
+  col1 <- metric_pairs_cont[[metric_name]][1]
+  col2 <- metric_pairs_cont[[metric_name]][2]
+  
+  # Calculate the difference
+  diff_values <- cont_combined[[col1]] - cont_combined[[col2]]
+  
+  # Shapiro-Wilk test for normality
+  shapiro_test <- shapiro.test(diff_values)
+  print(paste("Shapiro-Wilk test for", metric_name))
+  print(shapiro_test)
+  
+  # Determine which test to use based on normality
+  if (shapiro_test$p.value >= 0.05) {
+    # Paired t-test if normality holds
+    t_test <- t.test(cont_combined[[col1]], cont_combined[[col2]], paired = TRUE)
+    results_cont[[metric_name]] <- list(
+      "test" = "Paired t-test",
+      "p.value" = t_test$p.value
+    )
+    print(paste("Paired t-test result for", metric_name))
+    print(t_test)
+  } else {
+    # Wilcoxon signed-rank test if normality doesn't hold
+    wilcox_test <- wilcox.test(cont_combined[[col1]], cont_combined[[col2]], paired = TRUE)
+    results_cont[[metric_name]] <- list(
+      "test" = "Wilcoxon signed-rank test",
+      "p.value" = wilcox_test$p.value
+    )
+    print(paste("Wilcoxon signed-rank test result for", metric_name))
+    print(wilcox_test)
+  }
+}
+results_cont
+```
+
+
+```{r}
+results_df_cont <- data.frame(
+  Metric = character(),
+  Test = character(),
+  P_Value = numeric(),
+  stringsAsFactors = FALSE
+)
+
+for (metric_name in names(results_cont)) {
+  results_df_cont <- rbind(results_df_cont, data.frame(
+    Metric = metric_name,
+    Test = results_cont[[metric_name]]$test,
+    P_Value = results_cont[[metric_name]]$p.value
+  ))
+}
+
+results_df_cont$P_Value <- format(results_df_cont$P_Value, scientific = FALSE, digits = 4)
+kable(results_df_cont, 
+      caption = "Control Patients Metrics Comparison: PC vs GES")
+```
+
+Simply visualize with boxplots:
+```{r}
+par(mfrow = c(3, 3), mar = c(4, 4, 2, 1), oma = c(1, 1, 1, 1))
+
+shortened_labels <- c(
+  "Number_of_Edges" = "Number of Edges",
+  "Median_Degree_Centrality" = "Med. Degree Centrality",
+  "Median_Clustering_Coefficients" = "Med. Clustering Coeff.",
+  "Average_Path_Length" = "Avg. Path Length",
+  "Graph_Density" = "Graph Density",
+  "Median_Betweenness_Centrality" = "Med. Betweenness Centrality",
+  "Mean_Distance" = "Mean Distance"
+)
+
+# Loop through each metric pair and generate boxplots
+for (metric_name in names(metric_pairs_pc)) {
+  col1 <- metric_pairs_pc[[metric_name]][1] # PC values
+  col2 <- metric_pairs_pc[[metric_name]][2] # GES values
+  
+  # Create boxplot
+  boxplot(cont_combined[[col1]], cont_combined[[col2]],
+          names = c("PC", "GES"),
+          main = shortened_labels[metric_name],
+          col = c("lightblue", "pink"),
+          border = "black",
+          las = 1,
+          cex.main = 1.1,
+          cex.lab = 1.1,
+          cex.axis = 1)
+}
+
+par(mfrow = c(1, 1))
+```
+
+
+
+### Within each algorithm (PC vs GES), is there significant difference in graph metrics for ASD vs Control subjects?
+
+Within PC:
+```{r warning=FALSE, message=FALSE}
+metrics <- c(
+  "Number_of_Edges",
+  "Median_Degree_Centrality",
+  "Median_Clustering_Coefficients",
+  "Average_Path_Length",
+  "Graph_Density",
+  "Median_Betweenness_Centrality",
+  "Mean_Distance"
+)
+
+# Subset data for PC
+pc_asd <- pc_all |> filter(dx_group == "ASD")
+pc_control <- pc_all |> filter(dx_group == "Control")
+
+# Initialize results data frame
+results_pc <- data.frame(
+  Metric = character(),
+  Test = character(),
+  P_Value = numeric(),
+  stringsAsFactors = FALSE
+)
+
+# Loop over metrics
+for (metric in metrics) {
+  # Extract metric values for both groups
+  asd_values <- pc_asd[[metric]]
+  control_values <- pc_control[[metric]]
+  
+  test_result <- wilcox.test(asd_values, control_values)
+  test_type <- "Wilcoxon rank-sum test"
+  
+  # Add result to table
+  results_pc <- rbind(results_pc, data.frame(
+    Metric = metric,
+    Test = test_type,
+    P_Value = test_result$p.value
+  ))
+}
+
+# Format p-values
+results_pc$P_Value <- format(results_pc$P_Value, scientific = FALSE, digits = 4)
+
+# Display results as a kable
+kable(results_pc, 
+      caption = "Comparison of Graph Metrics within PC: ASD vs Control")
+```
+Median_Degree_Centrality	Wilcoxon rank-sum test	0.05427
+-> meaning: 
+
+Simply visualize:
+```{r}
+pc_all_long <- pc_all |>
+  select(sub_id, dx_group, all_of(metrics)) |>
+  pivot_longer(cols = all_of(metrics), names_to = "Metric", values_to = "Value")
+
+ggplot(pc_all_long, aes(x = dx_group, y = Value, fill = dx_group)) +
+  geom_boxplot() +
+  facet_wrap(~ Metric, scales = "free_y") +
+  labs(x = "Group",
+       y = "Connectivity Measure") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+
+Within GES:
+```{r warning=FALSE, message=FALSE}
+metrics <- c(
+  "Number_of_Edges",
+  "Median_Degree_Centrality",
+  "Median_Clustering_Coefficients",
+  "Average_Path_Length",
+  "Graph_Density",
+  "Median_Betweenness_Centrality",
+  "Mean_Distance"
+)
+
+ges_asd <- ges_all |> filter(dx_group == "ASD")
+ges_control <- ges_all |> filter(dx_group == "Control")
+
+results_ges <- data.frame(
+  Metric = character(),
+  Test = character(),
+  P_Value = numeric(),
+  stringsAsFactors = FALSE
+)
+
+# Loop over metrics
+for (metric in metrics) {
+  # Extract metric values for both groups
+  asd_values <- ges_asd[[metric]]
+  control_values <- ges_control[[metric]]
+  
+  test_result <- wilcox.test(asd_values, control_values)
+  test_type <- "Wilcoxon rank-sum test"
+  
+  # Add result to table
+  results_ges <- rbind(results_ges, data.frame(
+    Metric = metric,
+    Test = test_type,
+    P_Value = test_result$p.value
+  ))
+}
+
+# Format p-values
+results_ges$P_Value <- format(results_ges$P_Value, scientific = FALSE, digits = 4)
+
+# Display results as a kable
+kable(results_ges, 
+      caption = "Comparison of Graph Metrics within GES: ASD vs Control")
+```
+
+Simply visualize:
+```{r}
+ges_all_long <- ges_all |>
+  select(sub_id, dx_group, all_of(metrics)) |>
+  pivot_longer(cols = all_of(metrics), names_to = "Metric", values_to = "Value")
+
+ggplot(ges_all_long, aes(x = dx_group, y = Value, fill = dx_group)) +
+  geom_boxplot() +
+  facet_wrap(~ Metric, scales = "free_y") +
+  labs(x = "Group",
+       y = "Connectivity Measure") +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
